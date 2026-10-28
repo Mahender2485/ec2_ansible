@@ -67,11 +67,11 @@ pipeline {
                 withCredentials([
                     string(
                         credentialsId: 'aws-secret-access-key',
-                        variable: 'AWS_ACCESS_KEY_ID'
+                        variable: 'aws-access-key-id'
                     ),
                     string(
                         credentialsId: 'aws-secret-access-key',
-                        variable: 'AWS_ACCESS_KEY_ID'
+                        variable: 'aws-access-key-id'
                     )
                 ]) {
                     sh '''
