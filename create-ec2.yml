@@ -1,0 +1,44 @@
+---
+- name: Create AWS EC2 Instance
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    aws_region: us-east-1
+    instance_name: ansible-ec2
+    instance_type: t3.micro
+    ami_id: "ami-xxxxxxxxxxxxxxxxx"
+    security_group_id: "sg-xxxxxxxxxxxxxxxxx"
+
+  tasks:
+    - name: Create EC2 instance
+      amazon.aws.ec2_instance:
+        name: "{{ instance_name }}"
+        region: "{{ aws_region }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ ami_id }}"
+        security_group: "{{ security_group_id }}"
+        exact_count: 1
+        filters:
+          "tag:Name": "{{ instance_name }}"
+          instance-state-name:
+            - pending
+            - running
+            - stopping
+            - stopped
+        wait: true
+        state: running
+        tags:
+          Name: "{{ instance_name }}"
+          ManagedBy: Ansible
+      register: ec2_instance
+
+    - name: Display EC2 instance information
+      ansible.builtin.debug:
+        msg:
+          - "Instance ID: {{ item.instance_id }}"
+          - "Private IP: {{ item.private_ip_address | default('N/A') }}"
+          - "Public IP: {{ item.public_ip_address | default('N/A') }}"
+          - "State: {{ item.state.name }}"
+      loop: "{{ ec2_instance.instances }}"
